@@ -3,6 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import { connectDatabase } from './config/db.js';
 import authRoutes from './routes/auth.js';
+import listingsRoutes from './routes/listings.js';
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -12,6 +13,7 @@ app.use(express.json());
 
 app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));
 app.use('/api/auth', authRoutes);
+app.use('/api/listings', listingsRoutes);
 
 app.use((error, _req, res, _next) => {
   console.error(error);
