@@ -42,6 +42,8 @@ export default function ListingDetails() {
     }
   };
 
+  const contactOwner = () => navigate(`/messages?receiver=${listing.createdBy._id}&listing=${listing._id}`);
+
   const isOwner = user && listing && user.id === listing.createdBy._id;
 
   if (loading) return <div className="text-center py-8">Loading...</div>;
@@ -140,6 +142,9 @@ export default function ListingDetails() {
               />
             )}
           </div>
+          {!isOwner && user && (
+            <button onClick={contactOwner} className="button button-coral mt-4">Contact {listing.type === 'Offer' ? 'Seller' : 'Requester'} ↗</button>
+          )}
         </div>
 
         {isOwner && (

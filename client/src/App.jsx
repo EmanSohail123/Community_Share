@@ -6,6 +6,9 @@ import CreateListingPage from './pages/CreateListingPage.jsx';
 import BrowseListingsPage from './pages/BrowseListingsPage.jsx';
 import ListingDetailsPage from './pages/ListingDetailsPage.jsx';
 import MyListingsPage from './pages/MyListingsPage.jsx';
+import MessagesPage from './pages/MessagesPage.jsx';
+import Navbar from './components/Navbar.jsx';
+import { useSocket } from './context/SocketContext.jsx';
 
 function Brand() {
   return <Link className="brand" to="/">Community<span>Share</span></Link>;
@@ -15,7 +18,7 @@ function Landing() {
   const { token } = useAuth();
   return (
     <main className="landing page-shell">
-      <nav className="topbar"><Brand /><div className="nav-links"><a href="#how-it-works">How it works</a>{token ? <><Link to="/listings" className="text-link">Browse</Link><Link className="button button-dark" to="/dashboard">Dashboard</Link></> : <Link className="button button-dark" to="/login">Log in <span aria-hidden="true">↗</span></Link>}</div></nav>
+      <Navbar />
       <section className="hero">
         <div className="hero-copy reveal">
           <p className="eyebrow"><span className="eyebrow-dot" /> A better way to neighbor</p>
@@ -53,8 +56,9 @@ function AuthPage({ mode }) {
 
 function Dashboard() {
   const { user, logout } = useAuth();
+  const { unreadCount } = useSocket();
   const navigate = useNavigate();
-  return <main className="dashboard page-shell"><nav className="topbar"><Brand /><div className="nav-links"><Link to="/listings" className="text-link">Browse</Link><Link to="/create-listing" className="text-link">Create</Link><Link to="/my-listings" className="text-link">My Listings</Link><button className="button button-outline" onClick={logout}>Log out</button></div></nav><section className="dashboard-content"><p className="eyebrow"><span className="eyebrow-dot" /> Your neighborhood, at a glance</p><h1>Good to see you, <em>{user?.name?.split(' ')[0] || 'neighbor'}.</em></h1><p className="dashboard-lede">Your community is waiting just around the corner.</p><div className="dashboard-grid"><div className="empty-state"><span className="empty-icon">＋</span><h2>Your dashboard is ready.</h2><p>Next up: share something useful or discover what your neighbors have on hand.</p><button className="button button-dark" onClick={() => navigate('/listings')}>Browse nearby <span aria-hidden="true">↗</span></button></div><aside><p className="eyebrow">Your details</p><div className="profile-line"><span className="avatar">{user?.name?.charAt(0)}</span><div><strong>{user?.name}</strong><small>{user?.email}</small></div></div><div className="profile-meta"><span>Location</span><strong>{user?.location || 'Not set yet'}</strong></div><div className="profile-meta"><span>Member since</span><strong>{user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'Today'}</strong></div></aside></div></section></main>;
+  return <main className="dashboard page-shell"><section className="dashboard-content"><p className="eyebrow"><span className="eyebrow-dot" /> Your neighborhood, at a glance</p><h1>Good to see you, <em>{user?.name?.split(' ')[0] || 'neighbor'}.</em></h1><p className="dashboard-lede">Your community is waiting just around the corner.</p><div className="dashboard-grid"><div className="empty-state"><span className="empty-icon">＋</span><h2>Your dashboard is ready.</h2><p>Next up: share something useful or discover what your neighbors have on hand.</p><button className="button button-dark" onClick={() => navigate('/listings')}>Browse nearby <span aria-hidden="true">↗</span></button></div><aside><p className="eyebrow">Your details</p><div className="profile-line"><span className="avatar">{user?.name?.charAt(0)}</span><div><strong>{user?.name}</strong><small>{user?.email}</small></div></div><div className="profile-meta"><span>Location</span><strong>{user?.location || 'Not set yet'}</strong></div><div className="profile-meta"><span>Member since</span><strong>{user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'Today'}</strong></div></aside></div></section></main>;
 }
 
-export default function App() { return <Routes><Route path="/" element={<Landing />} /><Route path="/login" element={<AuthPage mode="login" />} /><Route path="/signup" element={<AuthPage mode="signup" />} /><Route path="/listings" element={<BrowseListingsPage />} /><Route path="/listings/:id" element={<ListingDetailsPage />} /><Route element={<ProtectedRoute />}><Route path="/dashboard" element={<Dashboard />} /><Route path="/create-listing" element={<CreateListingPage />} /><Route path="/my-listings" element={<MyListingsPage />} /></Route><Route path="*" element={<Navigate to="/" replace />} /></Routes>; }
+export default function App() { return <Routes><Route path="/" element={<Landing />} /><Route path="/login" element={<AuthPage mode="login" />} /><Route path="/signup" element={<AuthPage mode="signup" />} /><Route path="/listings" element={<BrowseListingsPage />} /><Route path="/listings/:id" element={<ListingDetailsPage />} /><Route element={<ProtectedRoute />}><Route path="/dashboard" element={<Dashboard />} /><Route path="/create-listing" element={<CreateListingPage />} /><Route path="/my-listings" element={<MyListingsPage />} /><Route path="/messages/:conversationId?" element={<MessagesPage />} /></Route><Route path="*" element={<Navigate to="/" replace />} /></Routes>; }

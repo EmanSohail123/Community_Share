@@ -8,6 +8,8 @@ export default function ListingForm({ onSuccess, initialData = null, onCancel })
     category: initialData?.category || 'Tool',
     type: initialData?.type || 'Offer',
     location: initialData?.location || '',
+    latitude: initialData?.coordinates?.lat || '',
+    longitude: initialData?.coordinates?.lng || '',
     image: null,
   });
 
@@ -30,6 +32,8 @@ export default function ListingForm({ onSuccess, initialData = null, onCancel })
     }
   };
 
+  const useCurrentLocation = () => navigator.geolocation?.getCurrentPosition(({ coords }) => setFormData((prev) => ({ ...prev, latitude: coords.latitude, longitude: coords.longitude })), () => setError('Location permission was not granted'));
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -47,6 +51,10 @@ export default function ListingForm({ onSuccess, initialData = null, onCancel })
       submitFormData.append('category', formData.category);
       submitFormData.append('type', formData.type);
       submitFormData.append('location', formData.location);
+      if (formData.latitude && formData.longitude) {
+        submitFormData.append('latitude', formData.latitude);
+        submitFormData.append('longitude', formData.longitude);
+      }
       if (formData.image instanceof File) {
         submitFormData.append('image', formData.image);
       }
@@ -143,6 +151,8 @@ export default function ListingForm({ onSuccess, initialData = null, onCancel })
             className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
             placeholder="e.g., Brooklyn, NY"
           />
+          <button type="button" onClick={useCurrentLocation} className="text-emerald-600 font-semibold mt-2">Use current location</button>
+          {formData.latitude && <p className="text-sm text-gray-500 mt-1">Coordinates saved for map search.</p>}
         </div>
 
         <div>

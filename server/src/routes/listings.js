@@ -9,7 +9,7 @@ const router = Router();
 // POST /api/listings - Create a new listing (protected, with image upload)
 router.post('/', protect, upload.single('image'), async (req, res) => {
   try {
-    const { title, description, category, type, location } = req.body;
+    const { title, description, category, type, location, latitude, longitude } = req.body;
 
     // Validate required fields
     if (!title?.trim() || !description?.trim() || !category || !type || !location?.trim()) {
@@ -45,6 +45,7 @@ router.post('/', protect, upload.single('image'), async (req, res) => {
       location: location.trim(),
       image: imageUrl,
       createdBy: req.user._id,
+      coordinates: latitude && longitude ? { lat: Number(latitude), lng: Number(longitude) } : undefined,
     });
 
     const populatedListing = await listing.populate('createdBy', 'name email profilePicture location');
@@ -140,7 +141,7 @@ router.put('/:id', protect, upload.single('image'), async (req, res) => {
       return res.status(403).json({ message: 'Only the owner can update this listing' });
     }
 
-    const { title, description, category, type, location } = req.body;
+    const { title, description, category, type, location, latitude, longitude } = req.body;
 
     // Update fields if provided
     if (title?.trim()) listing.title = title.trim();
@@ -148,6 +149,7 @@ router.put('/:id', protect, upload.single('image'), async (req, res) => {
     if (category && ['Tool', 'Skill', 'Service'].includes(category)) listing.category = category;
     if (type && ['Offer', 'Request'].includes(type)) listing.type = type;
     if (location?.trim()) listing.location = location.trim();
+    if (latitude && longitude) listing.coordinates = { lat: Number(latitude), lng: Number(longitude) };
 
     // Handle image update
     if (req.file) {
