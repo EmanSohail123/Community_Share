@@ -4,6 +4,7 @@ import ListingCard from '../components/ListingCard';
 import { listingsAPI } from '../api/listings';
 import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
+import Navbar from '../components/Navbar.jsx';
 
 function ListingsMap({ listings }) {
   const points = listings.filter((listing) => listing.coordinates?.lat != null && listing.coordinates?.lng != null);
@@ -99,7 +100,7 @@ export default function BrowseListingsPage() {
   };
 
   return (
-    <div className="px-4 py-6">
+    <div className="page-shell"><Navbar /><div className="px-4 py-6">
       <h1 className="text-3xl md:text-4xl font-bold mb-6">Browse Listings</h1>
 
       {/* Filters */}
@@ -175,6 +176,6 @@ export default function BrowseListingsPage() {
           ))}
         </div>
       )}
-    </div>
+    </div></div>
   );
 }

@@ -3,6 +3,7 @@ import Listing from '../models/Listing.js';
 import { protect } from '../middleware/protect.js';
 import { upload, cleanupTempFile } from '../middleware/multer.js';
 import { uploadToCloudinary, deleteFromCloudinary } from '../config/cloudinary.js';
+import Review from '../models/Review.js';
 
 const router = Router();
 
@@ -88,7 +89,18 @@ router.get('/', async (req, res) => {
     }
 
     const listings = await query;
-    res.json(listings);
+    const creatorIds = listings.map((listing) => listing.createdBy?._id).filter(Boolean);
+    const ratings = await Review.aggregate([
+      { $match: { revieweeId: { $in: creatorIds } } },
+      { $group: { _id: '$revieweeId', averageRating: { $avg: '$rating' }, reviewCount: { $sum: 1 } } },
+    ]);
+    const ratingByUser = new Map(ratings.map((rating) => [rating._id.toString(), rating]));
+    res.json(listings.map((listing) => {
+      const result = listing.toObject();
+      const rating = ratingByUser.get(listing.createdBy?._id?.toString());
+      result.createdBy = { ...result.createdBy, averageRating: rating ? Number(rating.averageRating.toFixed(1)) : 0, reviewCount: rating?.reviewCount || 0 };
+      return result;
+    }));
   } catch (error) {
     res.status(500).json({ message: 'Failed to fetch listings', error: error.message });
   }

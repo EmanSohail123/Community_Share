@@ -8,6 +8,8 @@ import authRoutes from './routes/auth.js';
 import listingsRoutes from './routes/listings.js';
 import messagesRoutes from './routes/messages.js';
 import { configureSocket } from './socket.js';
+import reviewsRoutes from './routes/reviews.js';
+import adminRoutes from './routes/admin.js';
 
 const app = express();
 const httpServer = http.createServer(app);
@@ -22,6 +24,8 @@ app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));
 app.use('/api/auth', authRoutes);
 app.use('/api/listings', listingsRoutes);
 app.use('/api', messagesRoutes);
+app.use('/api/reviews', reviewsRoutes);
+app.use('/api/admin', adminRoutes);
 
 configureSocket(io);
 

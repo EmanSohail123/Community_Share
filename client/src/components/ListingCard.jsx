@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import RatingStars from './RatingStars.jsx';
 
 export default function ListingCard({ listing }) {
   const getBadgeColor = (category) => {
@@ -36,6 +37,7 @@ export default function ListingCard({ listing }) {
             <span className={`text-xs font-semibold px-2 py-1 rounded ${getTypeBadgeColor(listing.type)}`}>
               {listing.type}
             </span>
+            {listing.createdBy?.reviewCount > 0 && <span className="rating-badge"><RatingStars value={Math.round(listing.createdBy.averageRating)} /> {listing.createdBy.averageRating.toFixed(1)}</span>}
           </div>
 
           <p className="text-gray-600 text-sm line-clamp-2 mb-2">

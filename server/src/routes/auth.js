@@ -17,6 +17,7 @@ function userResponse(user) {
     email: user.email,
     profilePicture: user.profilePicture,
     location: user.location,
+    isAdmin: user.isAdmin,
     createdAt: user.createdAt,
   };
 }

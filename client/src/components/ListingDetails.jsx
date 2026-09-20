@@ -1,8 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { listingsAPI } from '../api/listings';
 import ListingForm from './ListingForm';
+import RatingStars from './RatingStars.jsx';
+import ReviewsList from './ReviewsList.jsx';
+import { reviewsAPI } from '../api/reviews.js';
 
 export default function ListingDetails() {
   const { id } = useParams();
@@ -13,6 +17,7 @@ export default function ListingDetails() {
   const [error, setError] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [reviewData, setReviewData] = useState({ reviews: [], averageRating: 0, reviewCount: 0 });
 
   useEffect(() => {
     fetchListing();
@@ -22,6 +27,8 @@ export default function ListingDetails() {
     try {
       const data = await listingsAPI.getById(id);
       setListing(data);
+      const creatorReviews = await reviewsAPI.getForUser(data.createdBy._id);
+      setReviewData(creatorReviews);
     } catch (err) {
       setError(err.message || 'Failed to load listing');
     } finally {
@@ -80,6 +87,11 @@ export default function ListingDetails() {
       : 'bg-red-100 text-red-800';
   };
 
+  const reviewCount = reviewData.reviews.length;
+  const averageRating = reviewCount
+    ? reviewData.reviews.reduce((total, review) => total + Number(review.rating), 0) / reviewCount
+    : 0;
+
   return (
     <div className="max-w-4xl mx-auto px-4 py-6">
       <button
@@ -128,8 +140,9 @@ export default function ListingDetails() {
           <h3 className="text-lg font-bold mb-3">Posted by</h3>
           <div className="flex items-center justify-between bg-gray-50 p-4 rounded-lg">
             <div>
-              <p className="font-semibold">{listing.createdBy.name}</p>
+              <p className="font-semibold"><Link className="text-link" to={`/profiles/${listing.createdBy._id}`}>{listing.createdBy.name}</Link></p>
               <p className="text-gray-600 text-sm">{listing.createdBy.email}</p>
+              <div className="profile-rating"><RatingStars value={Math.round(averageRating)} /><span>{reviewCount ? `${averageRating.toFixed(1)} (${reviewCount})` : 'No reviews yet'}</span></div>
               {listing.createdBy.location && (
                 <p className="text-gray-600 text-sm">📍 {listing.createdBy.location}</p>
               )}
@@ -146,6 +159,11 @@ export default function ListingDetails() {
             <button onClick={contactOwner} className="button button-coral mt-4">Contact {listing.type === 'Offer' ? 'Seller' : 'Requester'} ↗</button>
           )}
         </div>
+
+        <section className="listing-reviews border-t border-gray-200 pt-6 mt-6">
+          <h2 className="text-xl font-bold mb-4">Reviews for {listing.createdBy.name}</h2>
+          <ReviewsList reviews={reviewData.reviews} />
+        </section>
 
         {isOwner && (
           <div className="flex flex-col sm:flex-row gap-3 mt-6 pt-6 border-t border-gray-200">
