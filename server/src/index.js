@@ -13,11 +13,17 @@ import adminRoutes from './routes/admin.js';
 
 const app = express();
 const httpServer = http.createServer(app);
-const io = new Server(httpServer, { cors: { origin: process.env.CLIENT_URL || 'http://localhost:5173' } });
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://community-share-flame.vercel.app',
+  process.env.CLIENT_URL,
+].filter(Boolean);
+const corsOptions = { origin: allowedOrigins, credentials: true };
+const io = new Server(httpServer, { cors: corsOptions });
 const port = process.env.PORT || 5000;
 app.set('io', io);
 
-app.use(cors({ origin: process.env.CLIENT_URL || 'http://localhost:5173' }));
+app.use(cors(corsOptions));
 app.use(express.json());
 
 app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));

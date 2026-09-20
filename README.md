@@ -46,6 +46,15 @@ Server: `PORT`, `MONGO_URI`, `JWT_SECRET`, `CLIENT_URL`, `CLOUDINARY_CLOUD_NAME`
 
 Client: `VITE_API_URL` must include the `/api` suffix, and `VITE_SOCKET_URL` must point to the server origin without `/api`.
 
+For a Railway deployment, set these variables in the frontend hosting provider rather than committing secrets:
+
+```text
+VITE_API_URL=https://<your-railway-service>.up.railway.app/api
+VITE_SOCKET_URL=https://<your-railway-service>.up.railway.app
+```
+
+`client/.env.production.example` contains the same URL shape. Replace the placeholder hostname with the actual Railway domain assigned to the backend.
+
 ## Module 4
 
 - `POST /api/reviews` requires an existing two-person conversation and prevents duplicate reviews for the same reviewer/reviewee/listing exchange.
